@@ -29,6 +29,42 @@ const WORKFLOWS = [
     steps: ["Competencies", "Gap view", "Recommendations", "Work history", "Career visualizer"],
     priority: true,
   },
+  {
+    id: "succession",
+    title: "Succession Risk & Bench Review",
+    module: "succession" as const,
+    description:
+      "Review critical roles, bench candidates, readiness ranking, and risk heatmap. Shows who is ready to step into key positions.",
+    steps: ["KPI cards", "Risk heatmap", "Critical roles", "Bench candidates"],
+    priority: false,
+  },
+  {
+    id: "career-planning",
+    title: "Career Planning & Velocity",
+    module: "career-planning" as const,
+    description:
+      "Track promotion velocity and status. Dashboard with Promotions YTD, velocity distribution, and On Track / Delayed / On Hold table.",
+    steps: ["Dashboard", "Velocity chart", "Status table", "Drill-down"],
+    priority: false,
+  },
+  {
+    id: "upload",
+    title: "Upload / Update Profile",
+    module: "upload" as const,
+    description:
+      "HR-only CV upload with simulated AI extraction. Review extracted fields with confidence scores, then create or update by employee ID.",
+    steps: ["File upload", "AI parsing (mock)", "Field review", "Save"],
+    priority: false,
+  },
+  {
+    id: "vacancies",
+    title: "Internal Vacancies & Matching",
+    module: "vacancies" as const,
+    description:
+      "Browse JG17+ open roles, view internal AI match scores, and compare against external candidates synced from Recruitment Platform.",
+    steps: ["Vacancy list", "Internal matches", "External comparison", "Hiring rationale"],
+    priority: false,
+  },
 ];
 
 export default function Home() {
