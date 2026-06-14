@@ -162,3 +162,21 @@ export const MODULE_LABELS: Record<ModuleId, { label: string; path: string }> =
     upload: { label: "Upload Profile", path: "/upload" },
     vacancies: { label: "Internal Vacancies", path: "/vacancies" },
   };
+
+const PATH_TO_MODULE: { prefix: string; module: ModuleId }[] = [
+  { prefix: "/talent-insights", module: "talent-insights" },
+  { prefix: "/profile", module: "profile" },
+  { prefix: "/succession", module: "succession" },
+  { prefix: "/career-planning", module: "career-planning" },
+  { prefix: "/upload", module: "upload" },
+  { prefix: "/vacancies", module: "vacancies" },
+];
+
+export function getModuleFromPath(pathname: string): ModuleId | null {
+  for (const entry of PATH_TO_MODULE) {
+    if (pathname.startsWith(entry.prefix)) {
+      return entry.module;
+    }
+  }
+  return null;
+}

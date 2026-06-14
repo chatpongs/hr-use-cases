@@ -1,6 +1,7 @@
-import type { Employee, GroupBU } from "./types";
+import type { Employee, GroupBU, CriticalRole } from "./types";
 import type { RoleDefinition } from "./roles";
 import { EMPLOYEES } from "./employees";
+import { CRITICAL_ROLES, BENCH_CANDIDATES } from "./succession";
 
 export interface FilterOptions {
   groupBus: GroupBU[];
@@ -103,4 +104,91 @@ export function getInitials(name: string): string {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+}
+
+export function getScopedCriticalRoles(
+  role: RoleDefinition,
+): CriticalRole[] {
+  let result = CRITICAL_ROLES;
+  if (role.scope.groupBus !== "all") {
+    result = result.filter((cr) =>
+      (role.scope.groupBus as GroupBU[]).includes(cr.groupBu),
+    );
+  }
+  if (role.scope.businessUnits !== "all") {
+    result = result.filter((cr) =>
+      (role.scope.businessUnits as string[]).includes(cr.businessUnit),
+    );
+  }
+  return result;
+}
+
+export function getBenchCandidatesForRole(criticalRoleId: string) {
+  return BENCH_CANDIDATES.filter(
+    (bc) => bc.criticalRoleId === criticalRoleId,
+  )
+    .map((bc) => {
+      const employee = EMPLOYEES.find((e) => e.id === bc.employeeId);
+      return { ...bc, employee };
+    })
+    .filter((bc) => bc.employee !== undefined)
+    .sort((a, b) => b.readinessScore - a.readinessScore);
+}
+
+export interface SuccessionKpiData {
+  totalCriticalRoles: number;
+  readyNowCount: number;
+  averageBenchStrength: number;
+  highRiskCount: number;
+}
+
+export function getSuccessionKpiData(
+  roles: CriticalRole[],
+): SuccessionKpiData {
+  let readyNowCount = 0;
+  let highRiskCount = 0;
+  let totalBench = 0;
+
+  for (const cr of roles) {
+    const candidates = BENCH_CANDIDATES.filter(
+      (bc) => bc.criticalRoleId === cr.id,
+    );
+    totalBench += candidates.length;
+    if (candidates.some((bc) => bc.readinessStatus === "Ready Now")) {
+      readyNowCount++;
+    }
+    if (cr.riskLevel === "High") {
+      highRiskCount++;
+    }
+  }
+
+  return {
+    totalCriticalRoles: roles.length,
+    readyNowCount,
+    averageBenchStrength:
+      roles.length > 0 ? Math.round((totalBench / roles.length) * 10) / 10 : 0,
+    highRiskCount,
+  };
+}
+
+export function getRiskHeatmapData(
+  roles: CriticalRole[],
+): { label: string; high: number; medium: number; low: number; total: number }[] {
+  const grouped: Record<
+    string,
+    { high: number; medium: number; low: number; total: number }
+  > = {};
+
+  for (const cr of roles) {
+    const key = `${cr.groupBu} / ${cr.businessUnit}`;
+    if (!grouped[key]) {
+      grouped[key] = { high: 0, medium: 0, low: 0, total: 0 };
+    }
+    grouped[key].total++;
+    if (cr.riskLevel === "High") grouped[key].high++;
+    else if (cr.riskLevel === "Medium") grouped[key].medium++;
+    else grouped[key].low++;
+  }
+
+  return Object.entries(grouped).map(([label, data]) => ({ label, ...data }));
 }

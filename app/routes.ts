@@ -10,5 +10,6 @@ export default [
     index("routes/home.tsx"),
     route("talent-insights", "routes/talent-insights.tsx"),
     route("profile/:employeeId", "routes/profile.tsx"),
+    route("succession", "routes/succession.tsx"),
   ]),
 ] satisfies RouteConfig;

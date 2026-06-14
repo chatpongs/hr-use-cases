@@ -1,9 +1,10 @@
-import { NavLink, Outlet, useLocation } from "react-router";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import { useEffect } from "react";
 import type { Route } from "./+types/app-layout";
 import { RoleSwitcher } from "../components/role-switcher";
 import { PresenterNotes } from "../components/presenter-notes";
 import { useRole } from "../context/role-context";
-import { MODULE_LABELS } from "../data/roles";
+import { MODULE_LABELS, getModuleFromPath } from "../data/roles";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Talent Intelligence — Phase 1 Demo" }];
@@ -12,9 +13,17 @@ export function meta({}: Route.MetaArgs) {
 export default function AppLayout() {
   const { role, demoUserId, setDemoUserId } = useRole();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isHome = location.pathname === "/";
   const roleNotes = getRoleNotes(role.label);
+
+  useEffect(() => {
+    const moduleId = getModuleFromPath(location.pathname);
+    if (moduleId && !role.modules.includes(moduleId)) {
+      navigate("/", { replace: true });
+    }
+  }, [role, location.pathname, navigate]);
 
   return (
     <div className="flex min-h-screen bg-base-200">
