@@ -12,12 +12,42 @@ Use this app during client presentations to:
 
 ## Getting Started
 
+### Local Development
+
 ```bash
 npm install
 npm run dev
 ```
 
 The app will be available at `http://localhost:5173`.
+
+The app is protected by a shared password gate. Set the password via an environment variable:
+
+```bash
+# Linux/macOS
+DEMO_PASSWORD=your-password npm run dev
+
+# Windows (PowerShell)
+$env:DEMO_PASSWORD="your-password"; npm run dev
+```
+
+If `DEMO_PASSWORD` is not set, the default password is `demo`.
+
+### Deployment (CapRover / Docker)
+
+1. Build the Docker image:
+
+```bash
+docker build -t talent-intelligence-demo .
+```
+
+2. In CapRover, deploy the image and add the environment variable:
+
+| Variable | Value |
+|---|---|
+| `DEMO_PASSWORD` | Your chosen shared password |
+
+3. Anyone visiting the app will be prompted for the password before accessing any workflow.
 
 ## Scope
 
@@ -61,3 +91,12 @@ Use the **role switcher** in the sidebar to switch roles. Buttons with a lock ic
 - React 19
 - Tailwind CSS v4 + DaisyUI 5
 - TypeScript
+
+## Access Control
+
+The app uses a server-side password gate to prevent unauthorized access:
+
+- All routes are protected except `/login`.
+- Authentication is stored as an HTTP-only cookie (SHA-256 hashed, 7-day expiry).
+- The password is set via the `DEMO_PASSWORD` environment variable.
+- No user accounts — a single shared password per deployment.

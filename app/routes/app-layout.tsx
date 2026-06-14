@@ -7,9 +7,15 @@ import { useRole } from "../context/role-context";
 import { MODULE_LABELS, getModuleFromPath } from "../data/roles";
 import { getEmployeeById } from "../data/employees";
 import { isEmployeeAccessible } from "../data/helpers";
+import { requireAuth } from "../lib/auth.server";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Talent Intelligence — Phase 1 Demo" }];
+}
+
+export function loader({ request }: Route.LoaderArgs) {
+  requireAuth(request);
+  return {};
 }
 
 export default function AppLayout() {
