@@ -26,7 +26,7 @@ const RoleContext = createContext<RoleContextValue | null>(null);
 const DEFAULT_DEMO_USER: Record<RoleId, string> = {
   "talent-hr": "e001",
   hrbp: "e001",
-  "line-manager": "e002",
+  "line-manager": "e001",
   "read-only": "e001",
   employee: "e003",
 };
