@@ -5,6 +5,8 @@ import { RoleSwitcher } from "../components/role-switcher";
 import { PresenterNotes } from "../components/presenter-notes";
 import { useRole } from "../context/role-context";
 import { MODULE_LABELS, getModuleFromPath } from "../data/roles";
+import { getEmployeeById } from "../data/employees";
+import { isEmployeeAccessible } from "../data/helpers";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Talent Intelligence — Phase 1 Demo" }];
@@ -16,7 +18,12 @@ export default function AppLayout() {
   const navigate = useNavigate();
 
   const isHome = location.pathname === "/";
-  const roleNotes = getRoleNotes(role.label);
+  const roleNotes = getPresenterNotes(
+    location.pathname,
+    role.label,
+    role,
+    demoUserId,
+  );
 
   useEffect(() => {
     const moduleId = getModuleFromPath(location.pathname);
@@ -186,34 +193,107 @@ const DEMO_USER_OPTIONS: Record<string, { value: string; label: string }[]> = {
   ],
 };
 
-function getRoleNotes(roleLabel: string): string[] {
-  const map: Record<string, string[]> = {
-    "Talent HR": [
-      "You are viewing as Talent HR with full access across all Group BUs.",
-      "Point out that HR can see all employees, KPIs, and drill into any profile.",
-      "KPIs and tables reflect the full population in scope.",
+function getPresenterNotes(
+  pathname: string,
+  roleLabel: string,
+  role: ReturnType<typeof useRole>["role"],
+  demoUserId: string,
+): string[] {
+  const moduleNotes: Record<string, string[]> = {
+    "talent-insights": [
+      "Highlight the KPI cards — headcount, high-risk, retention, talent breakdown.",
+      "Apply a filter (e.g. Group BU or Risk) to show how the table narrows.",
+      "Click 'Open Profile' to drill into an employee's individual detail view.",
+      "Switch roles to show how the population scope changes per role.",
     ],
-    HRBP: [
-      "You are viewing as HRBP scoped to CRC only (CDS + Robinson Retail BUs).",
-      "Highlight how the employee list and KPIs are smaller — scoped by BU.",
-      "Upload module is hidden from the nav for HRBP.",
+    succession: [
+      "Walk through the KPI cards — total critical roles, ready-now coverage.",
+      "Show the risk distribution heatmap by BU.",
+      "Expand a critical role row to reveal the bench candidates ranked by readiness.",
+      "For Talent HR: point out the Add/Remove bench candidate buttons.",
     ],
-    "Line Manager": [
-      "You are viewing as a Line Manager — direct reports only.",
-      "Use the demo user selector in the top bar to switch managers.",
-      "Point out that only direct reports appear in the table.",
-      "Manager Comment editing is available on direct-report profiles.",
+    "career-planning": [
+      "Highlight Promotions YTD and the On Track vs Delayed breakdown.",
+      "Explain the velocity distribution chart — green/yellow/red by Group BU.",
+      "Use the status filter buttons to isolate Delayed or On Hold employees.",
+      "Click 'View Career' to drill into a specific employee's career path.",
     ],
-    "Read-Only / Executive": [
-      "You are viewing as Read-Only / Executive.",
-      "KPIs and dashboards are visible but individual profile drill-down is disabled.",
-      "Succession and Career Planning dashboards are available.",
+    upload: [
+      "This module is HR-only — other roles see Access Denied.",
+      "Click the dropzone and select any file to simulate a CV upload.",
+      "After 'parsing', review the extracted fields with confidence scores.",
+      "Point out low-confidence fields flagged in amber/red for manual review.",
+      "Show the create-vs-update detection based on Employee ID.",
     ],
-    "Employee / Talent": [
-      "You are viewing as an Employee — self-service, own profile only.",
-      "Use the demo user selector to view different employees' self-service experience.",
-      "Only the Individual Profile module is available.",
+    vacancies: [
+      "Show the JG17+ vacancy list with priority and match counts.",
+      "Click 'View Matches' to see internal candidates with AI match scores.",
+      "Scroll to compare internal vs external candidates side by side.",
+      "Highlight the AI hiring rationale at the bottom (mock).",
+    ],
+    profile: [
+      "Walk through the tabs: Competencies, Assessment, Recommendations, History, Career.",
+      "On Competencies: show the radar chart (actual vs required).",
+      "Switch to Line Manager role to demo the editable Manager Comment.",
+      "Switch to Employee role to show the self-service read-only view.",
     ],
   };
-  return map[roleLabel] ?? ["Switch roles using the sidebar to compare views."];
+
+  const roleNotes: Record<string, string[]> = {
+    "Talent HR": [
+      "Role: Talent HR — full access across all Group BUs.",
+    ],
+    HRBP: [
+      "Role: HRBP — scoped to CRC (CDS + Robinson Retail). Data is filtered.",
+    ],
+    "Line Manager": [
+      "Role: Line Manager — direct reports only. Use the demo user selector.",
+    ],
+    "Read-Only / Executive": [
+      "Role: Read-Only — dashboards visible, profile drill-down disabled.",
+    ],
+    "Employee / Talent": [
+      "Role: Employee — self-service, own profile only.",
+    ],
+  };
+
+  const moduleKey = pathname.startsWith("/profile")
+    ? "profile"
+    : pathname.startsWith("/talent-insights")
+      ? "talent-insights"
+      : pathname.startsWith("/succession")
+        ? "succession"
+        : pathname.startsWith("/career-planning")
+          ? "career-planning"
+          : pathname.startsWith("/upload")
+            ? "upload"
+            : pathname.startsWith("/vacancies")
+              ? "vacancies"
+              : null;
+
+  if (!moduleKey) {
+    return roleNotes[roleLabel] ?? [];
+  }
+
+  // Check if the profile being viewed is out of scope for this role
+  if (moduleKey === "profile") {
+    const match = pathname.match(/^\/profile\/(.+)$/);
+    const empId = match?.[1];
+    if (empId) {
+      const employee = getEmployeeById(empId);
+      if (employee && !isEmployeeAccessible(employee, role, demoUserId)) {
+        return [
+          `This employee (${employee.name}) is OUT OF SCOPE for the ${roleLabel} role.`,
+          role.scope.directReportsOnly
+            ? "Line Managers can only view their direct reports."
+            : role.scope.selfOnly
+              ? "Employees can only view their own profile."
+              : "This employee falls outside the role's BU/function scope.",
+          "This demonstrates the role-based data isolation requirement.",
+        ];
+      }
+    }
+  }
+
+  return [...(moduleNotes[moduleKey] ?? []), ...(roleNotes[roleLabel] ?? [])];
 }

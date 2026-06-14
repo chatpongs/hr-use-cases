@@ -1,87 +1,63 @@
-# Welcome to React Router!
+# Talent Intelligence — Phase 1 Demo Companion App
 
-A modern, production-ready template for building full-stack React applications using React Router.
+A lightweight, clickable mock-up for walking clients through Phase 1 workflows of the CRC Talent Intelligence Platform. **This is not the production app** — it uses mock data and has no backend or AI integration.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Purpose
 
-## Features
+Use this app during client presentations to:
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- Walk through each Phase 1 workflow end-to-end.
+- Switch between user roles in real time to show permission-based differences.
+- Demonstrate what each role (Talent HR, HRBP, Line Manager, Read-Only, Employee) sees.
 
 ## Getting Started
 
-### Installation
-
-Install the dependencies:
-
 ```bash
 npm install
-```
-
-### Development
-
-Start the development server with HMR:
-
-```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+The app will be available at `http://localhost:5173`.
 
-## Building for Production
+## Scope
 
-Create a production build:
+- **Phase 1 only**
+- **No AI integration** — AI-dependent features show mock/sample data
+- **No ICDP** — excluded from Phase 1
 
-```bash
-npm run build
-```
+## Workflows
 
-## Deployment
+| Route | Workflow | Description |
+|---|---|---|
+| `/` | Home | Workflow selection + role permission matrix |
+| `/talent-insights` | Talent Population Discovery | KPI cards, filters, employee table, profile drill-down |
+| `/profile/:id` | Individual Profile Review | Competencies radar, gap analysis, recommendations, work history, career visualizer, manager comment |
+| `/succession` | Succession Risk & Bench Review | Critical roles, risk heatmap, bench candidates with readiness ranking |
+| `/career-planning` | Career Planning & Velocity | Promotions YTD, velocity distribution, On Track / Delayed / On Hold table |
+| `/upload` | Upload / Update Profile | CV upload simulation, AI extraction review with confidence scores |
+| `/vacancies` | Internal Vacancies & Matching | JG17+ vacancies, internal AI match scores, external candidate comparison |
 
-### Docker Deployment
+## Roles
 
-To build and run using Docker:
+| Role | Access |
+|---|---|
+| **Talent HR** | Full access across all Group BUs |
+| **HRBP** | Scoped to CRC (CDS + Robinson Retail) |
+| **Line Manager** | Direct reports only + Manager Comment (CPN) |
+| **Read-Only / Executive** | Dashboards only, no profile drill-down |
+| **Employee / Talent** | Self-service, own profile only |
 
-```bash
-docker build -t my-app .
+Use the **role switcher** in the sidebar to switch roles. Buttons with a lock icon indicate roles that cannot access the current page.
 
-# Run the container
-docker run -p 3000:3000 my-app
-```
+## Presenter Features
 
-The containerized application can be deployed to any platform that supports Docker, including:
+- **Presenter Notes** — collapsible yellow panel at the top of each screen with talking points for the current workflow and role.
+- **Demo User Selector** — for Line Manager and Employee roles, a dropdown in the top bar lets you pick which person to simulate.
+- **Role-based data scoping** — KPI cards, tables, and profiles all respect the active role's permissions.
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
+## Tech Stack
 
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+- React Router 7 (SSR)
+- React 19
+- Tailwind CSS v4 + DaisyUI 5
+- TypeScript

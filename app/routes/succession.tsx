@@ -315,6 +315,12 @@ function BenchDetail({ criticalRole }: { criticalRole: CriticalRole }) {
   const incumbent = getEmployeeById(criticalRole.incumbentId);
   const candidates = getBenchCandidatesForRole(criticalRole.id);
   const canEdit = role.id === "talent-hr";
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3000);
+  };
 
   return (
     <div className="space-y-4 p-2">
@@ -362,7 +368,12 @@ function BenchDetail({ criticalRole }: { criticalRole: CriticalRole }) {
             Successor Bench
           </h4>
           {canEdit && (
-            <button className="btn btn-xs btn-outline btn-primary">
+            <button
+              onClick={() =>
+                showToast("Demo: bench editing is not persisted. This action would open a candidate picker in the real app.")
+              }
+              className="btn btn-xs btn-outline btn-primary"
+            >
               + Add Candidate
             </button>
           )}
@@ -440,7 +451,12 @@ function BenchDetail({ criticalRole }: { criticalRole: CriticalRole }) {
                   </div>
 
                   {canEdit && (
-                    <button className="btn btn-ghost btn-xs text-error">
+                    <button
+                      onClick={() =>
+                        showToast(`Demo: removing ${emp.name} from bench is not persisted in this demo.`)
+                      }
+                      className="btn btn-ghost btn-xs text-error"
+                    >
                       Remove
                     </button>
                   )}
@@ -455,6 +471,14 @@ function BenchDetail({ criticalRole }: { criticalRole: CriticalRole }) {
         <p className="text-xs text-base-content/40">
           View-only access. Bench editing is available for Talent HR only.
         </p>
+      )}
+
+      {toastMsg && (
+        <div className="toast toast-end z-50">
+          <div className="alert alert-info shadow-lg">
+            <span className="text-sm">{toastMsg}</span>
+          </div>
+        </div>
       )}
     </div>
   );
