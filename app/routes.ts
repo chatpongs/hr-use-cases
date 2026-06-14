@@ -9,6 +9,7 @@ export default [
   layout("routes/app-layout.tsx", [
     index("routes/home.tsx"),
     route("talent-insights", "routes/talent-insights.tsx"),
+    route("profile", "routes/profile-index.tsx"),
     route("profile/:employeeId", "routes/profile.tsx"),
     route("succession", "routes/succession.tsx"),
     route("career-planning", "routes/career-planning.tsx"),
